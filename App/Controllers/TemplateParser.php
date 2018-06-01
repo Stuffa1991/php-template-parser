@@ -42,7 +42,7 @@ class TemplateParser implements TemplateParserInterface
             $fileContents = file_get_contents($path);
         } else {
             // If it doesn't exists load default template
-            $fileContents = file_get_contents($_SERVER['DOCUMENT_ROOT'] . '/Views/index.php');
+            $fileContents = file_get_contents($_SERVER['DOCUMENT_ROOT'] . '/Views/index.html');
         }
 
         // Set up paths to data
