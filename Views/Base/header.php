@@ -5,7 +5,6 @@
  * User: enema
  */
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,3 +12,6 @@
     <title>Simple Template Parser</title>
 </head>
 <body>
+<p>
+    Created by Staffan Storm Enemark, a simple template parser.
+</p>

@@ -98,6 +98,8 @@ class TemplateParser implements TemplateParserInterface
                 $content = str_replace('{{ ' . $templateVariable . ' }}', $value, $content);
             }
         }
+        // Remove all html comments from the parsed string
+        $content = preg_replace('/<!--(.*)-->/Uis', '', $content);
         // Return parsed template content
         return $content;
     }

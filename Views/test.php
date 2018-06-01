@@ -1,12 +1,11 @@
-<?php
+<!--
 /**
  * Created by PhpStorm.
  * Project: php-template-parser
  * User: enema
  */
-?>
-
+-->
 <p>
-    {{ test }}<br>
+    {{ test }} <br>
     {{ testArray }}
 </p>
