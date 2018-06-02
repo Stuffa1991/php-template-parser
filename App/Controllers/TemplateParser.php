@@ -92,10 +92,16 @@ class TemplateParser implements TemplateParserInterface
         foreach ($data as $templateVariable => $value) {
             // If its an array we implode it to get the data
             if (is_array($value)) {
-                $content = str_replace('{{ ' . $templateVariable . ' }}', implode(", ", $value), $content);
+                // Example with str_replace
+                // $content = str_replace('{{ ' . $templateVariable . ' }}', implode(", ", $value), $content);
+                // Example with regex
+                $content = preg_replace("/\{\{(\s+)?($templateVariable)(\s+)?\}\}/", implode(", ", $value), $content);
             } else {
                 // Replace {{ something }} with the value from the json in the content
-                $content = str_replace('{{ ' . $templateVariable . ' }}', $value, $content);
+                // Example with str_replace
+                // $content = str_replace('{{ ' . $templateVariable . ' }}', $value, $content);
+                // Example with regex
+                $content = preg_replace("/\{\{(\s+)?($templateVariable)(\s+)?\}\}/", $value, $content);
             }
         }
         // Remove all html comments from the parsed string
