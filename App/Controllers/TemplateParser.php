@@ -7,6 +7,7 @@
 
 namespace App\Controllers;
 
+use App\Exceptions\TemplateParserException;
 use App\Interfaces\TemplateParserInterface;
 
 /**
@@ -30,7 +31,8 @@ class TemplateParser implements TemplateParserInterface
     /**
      * Method to getting content of a file and returning it decoded
      * @param $file
-     * @return mixed|string
+     * @return mixed|null|string|string[]
+     * @throws TemplateParserException
      */
     public function getContents($file)
     {
@@ -64,7 +66,8 @@ class TemplateParser implements TemplateParserInterface
      * Method to decode with template
      * @param $content
      * @param $data
-     * @return mixed
+     * @return mixed|null|string|string[]
+     * @throws TemplateParserException
      */
     public function decodeContents($content, $data)
     {
@@ -84,7 +87,8 @@ class TemplateParser implements TemplateParserInterface
      * it just remains in the html showing the developer its missing in the json
      * @param $content
      * @param $data
-     * @return mixed
+     * @return null|string|string[]
+     * @throws TemplateParserException
      */
     private function template($content, $data)
     {
@@ -95,19 +99,44 @@ class TemplateParser implements TemplateParserInterface
                 // Example with str_replace
                 // $content = str_replace('{{ ' . $templateVariable . ' }}', implode(", ", $value), $content);
                 // Example with regex
-                $content = preg_replace("/\{\{(\s+)?($templateVariable)(\s+)?\}\}/", implode(", ", $value), $content);
+                try {
+                    $content = $this->findAndReplace($templateVariable, implode(", ", $value), $content);
+                } catch (TemplateParserException $ex) {
+                    return $ex->getMessage();
+                }
+
             } else {
                 // Replace {{ something }} with the value from the json in the content
                 // Example with str_replace
                 // $content = str_replace('{{ ' . $templateVariable . ' }}', $value, $content);
                 // Example with regex
-                $content = preg_replace("/\{\{(\s+)?($templateVariable)(\s+)?\}\}/", $value, $content);
+                try {
+                    $content = $this->findAndReplace($templateVariable, $value, $content);
+                } catch (TemplateParserException $ex) {
+                    return $ex->getMessage();
+                }
             }
         }
         // Remove all html comments from the parsed string
         $content = preg_replace('/<!--(.*)-->/Uis', '', $content);
         // Return parsed template content
         return $content;
+    }
+
+    /**
+     * @param $templateVariable
+     * @param $value
+     * @param $content
+     * @return string
+     * @throws TemplateParserException
+     */
+    private function findAndReplace($templateVariable, $value, $content)
+    {
+        if (preg_match("/[a-zA-Z\_]+/", $templateVariable)) {
+            return (string)preg_replace("/\{\{(\s+)?($templateVariable)(\s+)?\}\}/", $value, $content);
+        } else {
+            throw new TemplateParserException("The json file doesn't contain valid a valid a regex pattern: /[a-zA-Z]+/");
+        }
     }
 
 }

@@ -7,11 +7,13 @@
 
 namespace App\Exceptions;
 
+use Exception;
+
 /**
  * Class TemplateParserException
  * @package App\Exceptions
  */
-class TemplateParserException
+class TemplateParserException extends Exception
 {
 
 }
