@@ -36,20 +36,20 @@ class TemplateParser implements TemplateParserInterface
     public function getContents($file)
     {
         // Set up paths to views
-        $path = $this->viewPath . '/Views/' . $file . '.html';
+        $path = $this->viewPath . $file . '.html';
 
         // If the file exists load it, else load default
         $fileContents = file_exists($path) ?
             file_get_contents($path) :
-            file_get_contents($this->viewPath . '/Views/index.html');
+            file_get_contents($this->viewPath . 'index.html');
 
         // Set up paths to data
-        $dataPath = $this->dataPath . '/Views/ViewData/' . $file . '.json';
+        $dataPath = $this->dataPath . $file . '.json';
 
         // If the data file exists load it, else load default
         $data = file_exists($dataPath) ?
             file_get_contents($dataPath) :
-            file_get_contents($this->dataPath . '/Views/ViewData/index.json');
+            file_get_contents($this->dataPath . 'index.json');
 
         // Return decoded content
         return $this->decodeContents($fileContents, $data);
