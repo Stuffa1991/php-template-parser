@@ -32,31 +32,24 @@ class TemplateParser implements TemplateParserInterface
      * Method to getting content of a file and returning it decoded
      * @param $file
      * @return mixed|null|string|string[]
-     * @throws TemplateParserException
      */
     public function getContents($file)
     {
         // Set up paths to views
-        $path = $this->viewPath . $file . '.php';
+        $path = $this->viewPath . '/Views/' . $file . '.html';
 
-        // Try to find template file
-        if (file_exists($path)) {
-            $fileContents = file_get_contents($path);
-        } else {
-            // If it doesn't exists load default template
-            $fileContents = file_get_contents($_SERVER['DOCUMENT_ROOT'] . '/Views/index.html');
-        }
+        // If the file exists load it, else load default
+        $fileContents = file_exists($path) ?
+            file_get_contents($path) :
+            file_get_contents($this->viewPath . '/Views/index.html');
 
         // Set up paths to data
-        $dataPath = $this->dataPath . $file . '.json';
+        $dataPath = $this->dataPath . '/Views/ViewData/' . $file . '.json';
 
-        // Try to find data file
-        if (file_exists($dataPath)) {
-            $data = file_get_contents($dataPath);
-        } else {
-            // If it doesn't exist load default data
-            $data = file_get_contents($_SERVER['DOCUMENT_ROOT'] . '/Views/ViewData/index.json');
-        }
+        // If the data file exists load it, else load default
+        $data = file_exists($dataPath) ?
+            file_get_contents($dataPath) :
+            file_get_contents($this->dataPath . '/Views/ViewData/index.json');
 
         // Return decoded content
         return $this->decodeContents($fileContents, $data);
@@ -67,7 +60,6 @@ class TemplateParser implements TemplateParserInterface
      * @param $content
      * @param $data
      * @return mixed|null|string|string[]
-     * @throws TemplateParserException
      */
     public function decodeContents($content, $data)
     {
@@ -88,33 +80,15 @@ class TemplateParser implements TemplateParserInterface
      * @param $content
      * @param $data
      * @return null|string|string[]
-     * @throws TemplateParserException
      */
     private function template($content, $data)
     {
         // Foreach the json to replace template literal strings
         foreach ($data as $templateVariable => $value) {
-            // If its an array we implode it to get the data
-            if (is_array($value)) {
-                // Example with str_replace
-                // $content = str_replace('{{ ' . $templateVariable . ' }}', implode(", ", $value), $content);
-                // Example with regex
-                try {
-                    $content = $this->findAndReplace($templateVariable, implode(", ", $value), $content);
-                } catch (TemplateParserException $ex) {
-                    return $ex->getMessage();
-                }
-
-            } else {
-                // Replace {{ something }} with the value from the json in the content
-                // Example with str_replace
-                // $content = str_replace('{{ ' . $templateVariable . ' }}', $value, $content);
-                // Example with regex
-                try {
-                    $content = $this->findAndReplace($templateVariable, $value, $content);
-                } catch (TemplateParserException $ex) {
-                    return $ex->getMessage();
-                }
+            try {
+                $content = $this->findAndReplace($templateVariable, $value, $content);
+            } catch (TemplateParserException $ex) {
+                return $ex->getMessage();
             }
         }
         // Remove all html comments from the parsed string
@@ -132,10 +106,11 @@ class TemplateParser implements TemplateParserInterface
      */
     private function findAndReplace($templateVariable, $value, $content)
     {
+        $value = is_array($value) ? implode(", ", $value) : $value;
         if (preg_match("/[a-zA-Z\_]+/", $templateVariable)) {
             return (string)preg_replace("/\{\{(\s+)?($templateVariable)(\s+)?\}\}/", $value, $content);
         } else {
-            throw new TemplateParserException("The json file doesn't contain valid a valid a regex pattern: /[a-zA-Z]+/");
+            throw new TemplateParserException("The json file doesn't contain a valid regex pattern: /[a-zA-Z]+/");
         }
     }
 
